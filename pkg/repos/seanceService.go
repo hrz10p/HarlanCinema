@@ -1,26 +1,26 @@
-package services
+package repositories
 
 import (
 	"HarlanCinema/pkg/models"
 	"gorm.io/gorm"
 )
 
-type SeanceService struct {
+type SeanceRepository struct {
 	db *gorm.DB
 }
 
-func NewSeanceService(db *gorm.DB) *SeanceService {
-	return &SeanceService{db: db}
+func NewSeanceRepository(db *gorm.DB) *SeanceRepository {
+	return &SeanceRepository{db: db}
 }
 
-func (ss *SeanceService) Create(seance models.Seance) (models.Seance, error) {
+func (ss *SeanceRepository) Create(seance models.Seance) (models.Seance, error) {
 	if err := ss.db.Create(&seance).Error; err != nil {
 		return models.Seance{}, err
 	}
 	return seance, nil
 }
 
-func (ss *SeanceService) GetAll() ([]models.Seance, error) {
+func (ss *SeanceRepository) GetAll() ([]models.Seance, error) {
 	var seances []models.Seance
 	if err := ss.db.Preload("Movie").Find(&seances).Error; err != nil {
 		return nil, err
@@ -28,7 +28,7 @@ func (ss *SeanceService) GetAll() ([]models.Seance, error) {
 	return seances, nil
 }
 
-func (ss *SeanceService) GetByID(id int64) (models.Seance, error) {
+func (ss *SeanceRepository) GetByID(id int64) (models.Seance, error) {
 	var seance models.Seance
 	if err := ss.db.Preload("Movie").First(&seance, id).Error; err != nil {
 		return models.Seance{}, err
@@ -36,14 +36,14 @@ func (ss *SeanceService) GetByID(id int64) (models.Seance, error) {
 	return seance, nil
 }
 
-func (ss *SeanceService) Update(seance models.Seance) (models.Seance, error) {
+func (ss *SeanceRepository) Update(seance models.Seance) (models.Seance, error) {
 	if err := ss.db.Save(&seance).Error; err != nil {
 		return models.Seance{}, err
 	}
 	return seance, nil
 }
 
-func (ss *SeanceService) Delete(id int64) error {
+func (ss *SeanceRepository) Delete(id int64) error {
 	if err := ss.db.Delete(&models.Seance{}, id).Error; err != nil {
 		return err
 	}

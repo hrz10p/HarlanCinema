@@ -1,4 +1,4 @@
-package services
+package repositories
 
 import (
 	"HarlanCinema/pkg/models"
@@ -8,15 +8,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserService struct {
+type UserRepository struct {
 	db *gorm.DB
 }
 
-func NewUserService(db *gorm.DB) *UserService {
-	return &UserService{db: db}
+func NewUserRepository(db *gorm.DB) *UserRepository {
+	return &UserRepository{db: db}
 }
 
-func (s *UserService) GetAllUsers() ([]models.User, error) {
+func (s *UserRepository) GetAllUsers() ([]models.User, error) {
 	var users []models.User
 	if result := s.db.Find(&users); result.Error != nil {
 		return nil, result.Error
@@ -24,7 +24,7 @@ func (s *UserService) GetAllUsers() ([]models.User, error) {
 	return users, nil
 }
 
-func (s *UserService) RegisterUser(user models.User) (models.User, error) {
+func (s *UserRepository) RegisterUser(user models.User) (models.User, error) {
 	user.ID = uuid.New().String()
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -39,7 +39,7 @@ func (s *UserService) RegisterUser(user models.User) (models.User, error) {
 	return user, nil
 }
 
-func (s *UserService) AuthenticateUser(login, pass string) (models.User, error) {
+func (s *UserRepository) AuthenticateUser(login, pass string) (models.User, error) {
 	var user models.User
 	if result := s.db.Where("username = ?", login).Or("email = ?", login).First(&user); result.Error != nil {
 		return models.User{}, models.ErrInvalidCredentials
@@ -52,7 +52,7 @@ func (s *UserService) AuthenticateUser(login, pass string) (models.User, error) 
 	return user, nil
 }
 
-func (s *UserService) GetUserByID(id string) (models.User, error) {
+func (s *UserRepository) GetUserByID(id string) (models.User, error) {
 	var user models.User
 	if result := s.db.First(&user, "id = ?", id); result.Error != nil {
 		return models.User{}, result.Error
@@ -60,7 +60,7 @@ func (s *UserService) GetUserByID(id string) (models.User, error) {
 	return user, nil
 }
 
-func (s *UserService) getUserByUsername(username string) (models.User, error) {
+func (s *UserRepository) getUserByUsername(username string) (models.User, error) {
 	var user models.User
 	if result := s.db.Where("username = ?", username).First(&user); result.Error != nil {
 		return models.User{}, result.Error

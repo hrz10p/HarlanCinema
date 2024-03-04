@@ -1,4 +1,4 @@
-package services
+package repositories
 
 import (
 	"HarlanCinema/pkg/models"
@@ -8,17 +8,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type SessionService struct {
+type SessionRepository struct {
 	db *gorm.DB
 }
 
-func NewSessionService(db *gorm.DB) *SessionService {
-	return &SessionService{db: db}
+func NewSessionRepository(db *gorm.DB) *SessionRepository {
+	return &SessionRepository{db: db}
 }
 
 // RegisterSession creates or updates a session for a given UID with an expiration time.
 // It uses a transaction to ensure that these operations are atomic.
-func (s *SessionService) RegisterSession(UID string, exp time.Time) (models.Session, error) {
+func (s *SessionRepository) RegisterSession(UID string, exp time.Time) (models.Session, error) {
 	var session models.Session
 	err := s.db.Transaction(func(tx *gorm.DB) error {
 		// Check if a session exists for the UID and delete it if found
