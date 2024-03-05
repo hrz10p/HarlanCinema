@@ -19,7 +19,7 @@ func (app *application) routes() *mux.Router {
 
 	r.HandleFunc("/", app.home).Methods("GET")
 	r.HandleFunc("/all-seances", app.allSeances).Methods("GET")
-	r.HandleFunc("/about-film", app.aboutFilm).Methods("GET")
+	r.HandleFunc("/about-film/{id}", app.aboutFilm).Methods("GET")
 	r.HandleFunc("/login", app.loginPage).Methods("GET")
 	r.HandleFunc("/register", app.registerPage).Methods("GET")
 

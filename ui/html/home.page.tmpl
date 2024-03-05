@@ -48,22 +48,4 @@
         </div>
     </div>
 </div>
-<div class="container__elem container__vertical cinemas_block">
-    <h1 class="cinemas_heading h1">Cinemas</h1>
-    <div class="container__elem container cards_block">
-        <div class="cinemas cards_horizontal">
-            {{ range .Cinemas }}
-                <div class="cinema card">
-                    <div class="card__img">
-                        <img src="{{ .ImageUrl }}" alt="" />
-                    </div>
-                    <div class="card__info">
-                        <p class="card__info__title">{{ .Title }}</p>
-                        <p class="card__info__rating">Rating {{ .Rating }}</p>
-                    </div>
-                </div>
-            {{ end }}
-        </div>
-    </div>
-</div>
 {{ end }}

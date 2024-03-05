@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strconv"
 )
 
 type Movie struct {
@@ -29,30 +30,30 @@ type Ticket struct {
 	TicketType string
 }
 
+type Page struct {
+	User    models.User
+	Movies  []models.Movie
+	Seances []models.Seance
+	Tickets []models.Ticket
+	Reviews []models.Review
+	Movie   models.Movie
+	Ticket  models.Ticket
+	Seance  models.Seance
+	Review  models.Review
+
+	Premiers   []models.Seance
+	RentMovies []models.Movie
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	premiers := []Movie{
-		{ImageUrl: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg", Title: "Interstellar", Rating: 5.0, ID: 1},
-		{ImageUrl: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg", Title: "Interstellar", Rating: 5.0, ID: 1},
-		{ImageUrl: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg", Title: "Interstellar", Rating: 5.0, ID: 1},
-		{ImageUrl: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg", Title: "Interstellar", Rating: 5.0, ID: 1},
-		{ImageUrl: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg", Title: "Interstellar", Rating: 5.0, ID: 1},
-	}
-	rentMovies := []Movie{
-		{ImageUrl: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg", Title: "Interstellar", Rating: 5.0, ID: 1},
-		{ImageUrl: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg", Title: "Interstellar", Rating: 5.0, ID: 1},
-		{ImageUrl: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg", Title: "Interstellar", Rating: 5.0, ID: 1},
-		{ImageUrl: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg", Title: "Interstellar", Rating: 5.0, ID: 1},
-		{ImageUrl: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg", Title: "Interstellar", Rating: 5.0, ID: 1},
-	}
-	cinemas := []Cinema{
-		{ImageUrl: "https://avatars.mds.yandex.net/get-altay/6446898/2a000001841f6855cc48a43506d62c061537/orig", Title: "Cool cinema", Rating: 5.0},
-	}
-	type TMPL struct {
-		Premiers   []Movie
-		RentMovies []Movie
-		Cinemas    []Cinema
-	}
-	tmpl := TMPL{Cinemas: cinemas, Premiers: premiers, RentMovies: rentMovies}
+	var page Page
+
+	movies, err := app.services.MovieService.GetAllMovies()
+	seances, err := app.services.SeanceService.GetAllSeances()
+
+	page.User = getUserFromContext(r)
+	page.RentMovies = movies
+	page.Premiers = seances
 
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
@@ -67,7 +68,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		//app.serverError(w, err)
 		return
 	}
-	err = ts.Execute(w, tmpl)
+	err = ts.Execute(w, page)
 	if err != nil {
 		fmt.Println("Error")
 		return
@@ -75,23 +76,22 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) allSeances(w http.ResponseWriter, r *http.Request) {
-	premiers := []Movie{
-		{ImageUrl: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg", Title: "Interstellar", Rating: 5.0, ID: 1},
-		{ImageUrl: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg", Title: "Interstellar", Rating: 5.0, ID: 1},
-		{ImageUrl: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg", Title: "Interstellar", Rating: 5.0, ID: 1},
-		{ImageUrl: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg", Title: "Interstellar", Rating: 5.0, ID: 1},
-		{ImageUrl: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg", Title: "Interstellar", Rating: 5.0, ID: 1},
-	}
+	var page Page
+
+	seances, err := app.services.SeanceService.GetAllSeances()
+
+	page.User = getUserFromContext(r)
+	page.Seances = seances
+
 	files := []string{
 		"./ui/html/all_seances.page.tmpl",
 		"./ui/html/base.layout.tmpl",
 	}
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		//app.serverError(w, err)
 		return
 	}
-	err = ts.Execute(w, premiers)
+	err = ts.Execute(w, page)
 	if err != nil {
 		fmt.Println("Error")
 		return
@@ -202,50 +202,22 @@ func (app *application) registerPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) myTickets(w http.ResponseWriter, r *http.Request) {
-	tickets := []Ticket{
-		{
-			ImageUrl:   "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg",
-			Title:      "Interstellar",
-			Date:       "01.01.2024",
-			Time:       "00:00",
-			Cinema:     "Cool cinema",
-			TicketType: "Child",
-		},
-		{
-			ImageUrl:   "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg",
-			Title:      "Interstellar",
-			Date:       "01.01.2024",
-			Time:       "00:00",
-			Cinema:     "Cool cinema",
-			TicketType: "Child",
-		},
-		{
-			ImageUrl:   "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg",
-			Title:      "Interstellar",
-			Date:       "01.01.2024",
-			Time:       "00:00",
-			Cinema:     "Cool cinema",
-			TicketType: "Child",
-		},
-		{
-			ImageUrl:   "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg",
-			Title:      "Interstellar",
-			Date:       "01.01.2024",
-			Time:       "00:00",
-			Cinema:     "Cool cinema",
-			TicketType: "Child",
-		},
-	}
+	var page Page
+
+	tickets, err := app.services.TicketService.GetAllTickets()
+
+	page.User = getUserFromContext(r)
+	page.Tickets = tickets
+
 	files := []string{
 		"./ui/html/my_tickets.page.tmpl",
 		"./ui/html/base.layout.tmpl",
 	}
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		//app.serverError(w, err)
 		return
 	}
-	err = ts.Execute(w, tickets)
+	err = ts.Execute(w, page)
 	if err != nil {
 		fmt.Println("Error")
 		return
@@ -253,11 +225,18 @@ func (app *application) myTickets(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) aboutFilm(w http.ResponseWriter, r *http.Request) {
-	tickets := Movie{
-		ImageUrl:    "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg",
-		Title:       "Interstellar",
-		Rating:      5.0,
-		Description: "Cool film, i like so much",
+	var page Page
+
+	movieId, _ := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+	movie, err := app.services.MovieService.GetMovieById(movieId)
+
+	page.User = getUserFromContext(r)
+	page.Movie = movie
+
+	if err != nil {
+		app.errorLog.Println("Error getting film", err)
+		http.Error(w, "Internal Server error", 500)
+		return
 	}
 	files := []string{
 		"./ui/html/about_film.page.tmpl",
@@ -265,12 +244,10 @@ func (app *application) aboutFilm(w http.ResponseWriter, r *http.Request) {
 	}
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		//app.serverError(w, err)
 		return
 	}
-	err = ts.Execute(w, tickets)
+	err = ts.Execute(w, page)
 	if err != nil {
-		fmt.Println("Error")
 		return
 	}
 }
