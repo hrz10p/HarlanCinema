@@ -10,6 +10,7 @@ type Service struct {
 	TicketService TicketService
 	ReviewService ReviewService
 	SeanceService SeanceService
+	FileService   FileService
 }
 
 func NewService(Repo *repo.Repository) *Service {
@@ -19,5 +20,6 @@ func NewService(Repo *repo.Repository) *Service {
 		TicketService: *NewTicketService(Repo),
 		ReviewService: *NewReviewService(Repo),
 		SeanceService: *NewSeanceService(Repo),
+		FileService:   *NewFileService(),
 	}
 }
