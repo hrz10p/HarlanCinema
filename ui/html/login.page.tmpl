@@ -11,6 +11,13 @@
 <div class="main__container container container__vertical">
     <div class="container__elem container__vertical login_block">
         <h1 class="h1">Login</h1>
+        {{if .Flashes}}
+            <div class="flash-messages">
+                {{range .Flashes}}
+                    <div>{{.}}</div>
+                {{end}}
+            </div>
+        {{end}}
         <form action="" class="container__vertical login_form">
             <label for="" class="label">
                 Email:
