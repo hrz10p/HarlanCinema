@@ -1,0 +1,41 @@
+{{ template "base" . }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="./static/css/login_register.css" />
+{{ end }}
+
+{{ define "scripts" }}
+{{ end }}
+
+{{ define "main" . }}
+<div class="main__container container container__vertical">
+    <div class="container__elem container__vertical register_block">
+        <h1 class="h1">Register</h1>
+        <form action="" class="container__vertical register_form">
+            <label for="" class="label">
+                Username:
+                <input
+                    type="text"
+                    placeholder="username"
+                    name="username"
+                    id="username"
+                />
+            </label>
+            <label for="" class="label">
+                Email:
+                <input type="text" placeholder="email" name="email" id="email" />
+            </label>
+            <label for="" class="label">
+                Password:
+                <input
+                    type="password"
+                    placeholder="password"
+                    name="password"
+                    id="password"
+                />
+            </label>
+            <button class="register_btn">Register</button>
+        </form>
+    </div>
+</div>
+{{ end }}
