@@ -1,6 +1,8 @@
 package main
 
 import (
+	"HarlanCinema/pkg/models"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -97,20 +99,88 @@ func (app *application) allSeances(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) loginPage(w http.ResponseWriter, r *http.Request) {
+	session, _ := app.sessions.Get(r, SessionName)
+
+	flashes := session.Flashes()
+	session.Save(r, w)
+
 	files := []string{
 		"./ui/html/login.page.tmpl",
 		"./ui/html/base.layout.tmpl",
 	}
+
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		//app.serverError(w, err)
+		app.errorLog.Println(err)
+		http.Error(w, "Internal Server Error", 500)
 		return
 	}
-	err = ts.Execute(w, nil)
+
+	data := map[string]interface{}{
+		"Flashes": flashes,
+	}
+
+	err = ts.Execute(w, data)
 	if err != nil {
-		fmt.Println("Error")
+		app.errorLog.Println(err)
+		http.Error(w, "Internal Server Error", 500)
+	}
+}
+
+func (app *application) login(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.errorLog.Printf("Error parsing form: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+
+	username := r.Form.Get("username")
+	password := r.Form.Get("password")
+	session, _ := app.sessions.Get(r, "session-name")
+	user, err := app.services.UserService.AuthenticateUser(username, password)
+	if err != nil {
+		if errors.Is(err, models.ErrInvalidCredentials) {
+			session.AddFlash("Invalid username or password")
+			session.Save(r, w)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		} else {
+			app.errorLog.Println("Some error occured in login POST", err)
+			http.Error(w, "Internal server error", 500)
+			return
+		}
+
+	}
+
+	session.Values["user_id"] = user.ID
+	session.Save(r, w)
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (app *application) register(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.errorLog.Printf("Error parsing form: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	username := r.Form.Get("username")
+	password := r.Form.Get("password")
+	user := models.User{
+		Username: username,
+		Password: password,
+	}
+	user, err = app.services.UserService.RegisterUser(user)
+	if err != nil {
+		app.errorLog.Println("Some error occured in register POST", err)
+		http.Error(w, "Internal server error", 500)
+		return
+	}
+
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
 func (app *application) registerPage(w http.ResponseWriter, r *http.Request) {
@@ -120,7 +190,8 @@ func (app *application) registerPage(w http.ResponseWriter, r *http.Request) {
 	}
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		//app.serverError(w, err)
+		app.errorLog.Println("Unable to parse tmpls")
+		http.Error(w, "Internal server error", 500)
 		return
 	}
 	err = ts.Execute(w, nil)
