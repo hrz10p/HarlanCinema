@@ -46,7 +46,6 @@ func (s *UserService) AuthenticateUser(login, pass string) (models.User, error) 
 }
 
 func (s *UserService) GetUserByID(id string) (models.User, error) {
-
 	user, err := s.Repo.UserRepository.GetUserByID(id)
 	if err != nil {
 		return models.User{}, models.NotFoundAnything
