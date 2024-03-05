@@ -29,6 +29,10 @@
                         <p class="card__info__rating">Rating {{ .Rating }}</p>
                         <a href="/" class="card__info__btn">Book ticket</a>
                     </div>
+                    <form action="/getTicket" method="post">
+                        <input type="text" hidden="hidden" name="seanceID" value="{{.ID}}">
+                        <input type="submit" value="Get ticket!">
+                    </form>
                 </div>
             {{ end }}
             </div>

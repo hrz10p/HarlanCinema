@@ -15,7 +15,7 @@
             <label for="title">Movie title</label>
             <input type="text" id="title" name="title">
             <label for="description">Movie description</label>
-            <textarea id="description" name="description" id="" cols="30" rows="10"></textarea>
+            <textarea id="description" name="description" cols="30" rows="10"></textarea>
             <label for="rating">Rating</label>
             <input type="number" name="rating" id="rating">
             <label for="image">Image (JPEG, PNG, GIF):</label>
@@ -28,7 +28,7 @@
             <label for="location">Seance location</label>
             <input type="text" id="location" name="location">
             <label for="date">Seance date</label>
-            <input type="date" name="date" id="date">
+            <input type="datetime-local" name="date" id="date">
             <select name="movie" id="movie">
                 {{range .Movies}}
                 <option value="{{.ID}}">{{.Name}}</option>
