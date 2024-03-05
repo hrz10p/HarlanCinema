@@ -39,3 +39,16 @@ func (ts *TicketService) DeleteTicket(userId, seanceId int64) error {
 	}
 	return nil
 }
+
+func (ts *TicketService) GiveTicketForUser(userID string, seanceID int64) error {
+	ticket := models.Ticket{
+		UserID:     userID,
+		SeanceID:   seanceID,
+		Cost:       0,
+		TicketType: "plain",
+	}
+	if _, err := ts.Repo.TicketRepository.Create(ticket); err != nil {
+		return err
+	}
+	return nil
+}

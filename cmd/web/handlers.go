@@ -9,27 +9,6 @@ import (
 	"strconv"
 )
 
-type Movie struct {
-	ImageUrl    string
-	Title       string
-	Rating      float64
-	ID          int
-	Description string
-}
-type Cinema struct {
-	ImageUrl string
-	Title    string
-	Rating   float64
-}
-type Ticket struct {
-	ImageUrl   string
-	Title      string
-	Date       string
-	Time       string
-	Cinema     string
-	TicketType string
-}
-
 type Page struct {
 	User    models.User
 	Movies  []models.Movie
@@ -40,21 +19,19 @@ type Page struct {
 	Ticket  models.Ticket
 	Seance  models.Seance
 	Review  models.Review
-
-	Premiers   []models.Seance
-	RentMovies []models.Movie
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	var page Page
 
 	movies, err := app.services.MovieService.GetAllMovies()
-	seances, err := app.services.SeanceService.GetAllSeances()
+	if err != nil {
+		app.errorLog.Println("Something wrong", err)
+		http.Error(w, "Internal Server error", 500)
+	}
 
 	page.User = getUserFromContext(r)
-	page.RentMovies = movies
-	page.Premiers = seances
-
+	page.Movies = movies
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
@@ -65,13 +42,13 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	}
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		//app.serverError(w, err)
-		return
+		app.errorLog.Println("Something wrong", err)
+		http.Error(w, "Internal Server error", 500)
 	}
 	err = ts.Execute(w, page)
 	if err != nil {
-		fmt.Println("Error")
-		return
+		app.errorLog.Println("Something wrong", err)
+		http.Error(w, "Internal Server error", 500)
 	}
 }
 
@@ -79,7 +56,10 @@ func (app *application) allSeances(w http.ResponseWriter, r *http.Request) {
 	var page Page
 
 	seances, err := app.services.SeanceService.GetAllSeances()
-
+	if err != nil {
+		app.errorLog.Println("Something wrong", err)
+		http.Error(w, "Internal Server error", 500)
+	}
 	page.User = getUserFromContext(r)
 	page.Seances = seances
 
@@ -89,12 +69,13 @@ func (app *application) allSeances(w http.ResponseWriter, r *http.Request) {
 	}
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		return
+		app.errorLog.Println("Something wrong", err)
+		http.Error(w, "Internal Server error", 500)
 	}
 	err = ts.Execute(w, page)
 	if err != nil {
-		fmt.Println("Error")
-		return
+		app.errorLog.Println("Something wrong", err)
+		http.Error(w, "Internal Server error", 500)
 	}
 }
 
@@ -137,7 +118,7 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 
 	username := r.Form.Get("username")
 	password := r.Form.Get("password")
-	session, _ := app.sessions.Get(r, "session-name")
+	session, _ := app.sessions.Get(r, SessionName)
 	user, err := app.services.UserService.AuthenticateUser(username, password)
 	if err != nil {
 		if errors.Is(err, models.ErrInvalidCredentials) {
@@ -183,6 +164,28 @@ func (app *application) register(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
+func (app *application) logout(w http.ResponseWriter, r *http.Request) {
+	// Fetch the session
+	session, err := app.sessions.Get(r, SessionName)
+	if err != nil {
+		app.errorLog.Printf("Error fetching session: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	if _, ok := session.Values["user_id"]; ok {
+		delete(session.Values, "user_id")
+		err = session.Save(r, w)
+		if err != nil {
+			app.errorLog.Printf("Error saving session: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
 func (app *application) registerPage(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"./ui/html/register.page.tmpl",
@@ -204,23 +207,32 @@ func (app *application) registerPage(w http.ResponseWriter, r *http.Request) {
 func (app *application) myTickets(w http.ResponseWriter, r *http.Request) {
 	var page Page
 
-	tickets, err := app.services.TicketService.GetAllTickets()
+	user := getUserFromContext(r)
 
-	page.User = getUserFromContext(r)
+	tickets, err := app.services.TicketService.Repo.TicketRepository.FindAllTicketsByUserID(user.ID)
+	if err != nil {
+		app.errorLog.Println("Something wrong", err)
+		http.Error(w, "Internal Server error", 500)
+	}
+	for i := range tickets {
+		mov, _ := app.services.MovieService.GetMovieById(tickets[i].Seance.MovieID)
+		tickets[i].Seance.Movie = mov
+	}
 	page.Tickets = tickets
-
+	page.User = user
 	files := []string{
 		"./ui/html/my_tickets.page.tmpl",
 		"./ui/html/base.layout.tmpl",
 	}
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		return
+		app.errorLog.Println("Something wrong", err)
+		http.Error(w, "Internal Server error", 500)
 	}
 	err = ts.Execute(w, page)
 	if err != nil {
-		fmt.Println("Error")
-		return
+		app.errorLog.Println("Something wrong", err)
+		http.Error(w, "Internal Server error", 500)
 	}
 }
 
@@ -229,15 +241,19 @@ func (app *application) aboutFilm(w http.ResponseWriter, r *http.Request) {
 
 	movieId, _ := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
 	movie, err := app.services.MovieService.GetMovieById(movieId)
-
+	if err != nil {
+		app.errorLog.Println("Something wrong", err)
+		http.Error(w, "Internal Server error", 500)
+	}
 	page.User = getUserFromContext(r)
 	page.Movie = movie
-
+	seances, err := app.services.SeanceService.Repo.SeanceRepository.FindByMovieID(movieId)
 	if err != nil {
 		app.errorLog.Println("Error getting film", err)
 		http.Error(w, "Internal Server error", 500)
 		return
 	}
+	page.Seances = seances
 	files := []string{
 		"./ui/html/about_film.page.tmpl",
 		"./ui/html/base.layout.tmpl",
@@ -250,4 +266,28 @@ func (app *application) aboutFilm(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+}
+
+func (app *application) getTicket(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.errorLog.Printf("Error parsing form: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	user := getUserFromContext(r)
+
+	seance := r.FormValue("seanceID")
+	fmt.Println(seance)
+	seanceID, err := strconv.Atoi(seance)
+
+	err = app.services.TicketService.GiveTicketForUser(user.ID, int64(seanceID))
+	if err != nil {
+		app.errorLog.Printf("Error parsing form: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/my-tickets", 303)
 }

@@ -2,10 +2,40 @@ package main
 
 import (
 	"HarlanCinema/pkg/models"
+	"html/template"
 	"net/http"
 	"strconv"
 	"time"
 )
+
+func (app *application) adminPage(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"./ui/html/admin.page.tmpl",
+		"./ui/html/base.layout.tmpl",
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.errorLog.Println(err)
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+
+	var page Page
+	movies, err := app.services.MovieService.GetAllMovies()
+	if err != nil {
+		app.errorLog.Println(err)
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+
+	page.Movies = movies
+	err = ts.Execute(w, page)
+	if err != nil {
+		app.errorLog.Println(err)
+		http.Error(w, "Internal Server Error", 500)
+	}
+}
 
 func (app *application) createMovie(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(20 << 20)
@@ -30,7 +60,7 @@ func (app *application) createMovie(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server error", 500)
 	}
 	_, header, err := r.FormFile("image")
-	if header != nil {
+	if err != nil {
 		app.errorLog.Println("Something wrong", err)
 		http.Error(w, "Internal Server error", 500)
 	}
@@ -71,10 +101,12 @@ func (app *application) createSeance(w http.ResponseWriter, r *http.Request) {
 		app.errorLog.Println("Something wrong", err)
 		http.Error(w, "Internal Server error", 500)
 	}
-	times, err := time.Parse("2006-01-02 15:04:05", date)
+	const layout = "2006-01-02T15:04"
+	times, err := time.Parse(layout, date)
 	if err != nil {
-		app.errorLog.Println("Something wrong", err)
-		http.Error(w, "Internal Server error", 500)
+		app.errorLog.Printf("Error parsing date: %v\n", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 	seance := models.Seance{
 		MovieID:  int64(movint),

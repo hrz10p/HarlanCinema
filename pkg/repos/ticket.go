@@ -49,3 +49,11 @@ func (ts *TicketRepository) Delete(userID, seanceID int64) error {
 	}
 	return nil
 }
+
+func (ts *TicketRepository) FindAllTicketsByUserID(userID string) ([]models.Ticket, error) {
+	var tickets []models.Ticket
+	if err := ts.db.Preload("User").Preload("Seance").Where("user_id = ?", userID).Find(&tickets).Error; err != nil {
+		return nil, err
+	}
+	return tickets, nil
+}

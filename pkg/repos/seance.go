@@ -49,3 +49,10 @@ func (ss *SeanceRepository) Delete(id int64) error {
 	}
 	return nil
 }
+func (ss *SeanceRepository) FindByMovieID(movieID int64) ([]models.Seance, error) {
+	var seances []models.Seance
+	if err := ss.db.Preload("Movie").Where("movie_id = ?", movieID).Find(&seances).Error; err != nil {
+		return nil, err
+	}
+	return seances, nil
+}

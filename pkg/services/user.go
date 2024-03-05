@@ -23,7 +23,7 @@ func (s *UserService) RegisterUser(user models.User) (models.User, error) {
 	}
 
 	user.Password = string(hash)
-
+	user.Role = "user"
 	user, err = s.Repo.UserRepository.Create(user)
 	if err != nil {
 		return models.User{}, err

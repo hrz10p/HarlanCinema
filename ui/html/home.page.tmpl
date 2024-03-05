@@ -13,7 +13,7 @@
         <h1 class="premieres_heading h1">Premieres</h1>
         <div class="container__elem container cards_block">
             <div class="premiers cards_horizontal">
-                {{ range .Premiers }}
+                {{ range .Movies }}
                     <div class="premier card">
                         <div class="card__img">
                             <img src="/images/{{ .ImageUrl }}" alt="" />
@@ -21,30 +21,11 @@
                         <div class="card__info">
                             <p class="card__info__title">{{ .Title }}</p>
                             <p class="card__info__rating">Rating {{ .Rating }}</p>
-                            <a href="/" class="card__info__btn" data-id="{{ .ID }}">Book ticket</a>
+                            <a href="/about-film?id={{ .ID }}" class="card__info__btn" data-id="{{ .ID }}">More!</a>
                         </div>
                     </div>
                 {{ end }}
             </div>
-        </div>
-    </div>
-</div>
-<div class="container__elem container__vertical rent_movies_block">
-    <h1 class="premieres_heading h1">Rent movies</h1>
-    <div class="container__elem container cards_block">
-        <div class="rent_movies cards_horizontal">
-            {{ range .RentMovies }}
-                <div class="rent_movie card">
-                    <div class="card__img">
-                    <img src="{{ .ImageUrl }}" alt="" />
-                    </div>
-                    <div class="card__info">
-                    <p class="card__info__title">{{ .Title }}</p>
-                    <p class="card__info__rating">Rating {{ .Rating }}</p>
-                    <a href="/" class="card__info__btn">Book ticket</a>
-                    </div>
-                </div>
-            {{ end }}
         </div>
     </div>
 </div>

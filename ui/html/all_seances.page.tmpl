@@ -13,30 +13,34 @@
         class="container__elem container_vertical all_seances"
         style="width: 100%"
     >
+        {{if .Seances}}
         <h1 class="h1" style="text-align: center">All seances</h1>
         <div class="container container__elem cards_block">
             <div
               class="cards_horizontal"
               style="flex-wrap: wrap; justify-content: space-around"
             >
-            {{ range . }}
+            {{ range .Seances}}
                 <div class="card">
                     <div class="card__img">
-                        <img src="/images/{{ .ImageUrl }}" alt="" />
+                        <img src="/images/{{ .Movie.ImageUrl }}" alt="" />
                     </div>
                     <div class="card__info">
-                        <p class="card__info__title">{{ .Title }}</p>
-                        <p class="card__info__rating">Rating {{ .Rating }}</p>
-                        <a href="/" class="card__info__btn">Book ticket</a>
+                        <p class="card__info__title">{{ .Movie.Title }}</p>
+                        <p class="card__info__rating">Rating {{ .Movie.Rating }}</p>
+                        <form action="/getTicket" method="post">
+                            <input type="text" hidden="hidden" name="seanceID" value="{{.ID}}">
+                            <input type="submit" class="card__info__btn" value="Get ticket!">
+                        </form>
                     </div>
-                    <form action="/getTicket" method="post">
-                        <input type="text" hidden="hidden" name="seanceID" value="{{.ID}}">
-                        <input type="submit" value="Get ticket!">
-                    </form>
+
                 </div>
             {{ end }}
             </div>
         </div>
+        {{else}}
+        <h1>Nothing to show</h1>
+        {{end}}
     </div>
 </div>
 {{ end }}

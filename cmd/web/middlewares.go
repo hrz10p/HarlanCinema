@@ -29,12 +29,20 @@ func (app *application) userAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		id, ok := session.Values["user_id"]
-		if !ok {
+		id, exists := session.Values["user_id"]
+		if !exists || id == nil {
 			next.ServeHTTP(w, r)
+			return
 		}
 
-		user, err := app.services.UserService.GetUserByID(id.(string))
+		userID, ok := id.(string)
+		if !ok {
+			app.errorLog.Println("User ID is not a string")
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		user, err := app.services.UserService.GetUserByID(userID)
 		if err != nil {
 			app.errorLog.Println("Error fetching user:", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -59,6 +67,18 @@ func (app *application) RequireAuthentication(next http.Handler) http.Handler {
 		user := getUserFromContext(r)
 		if (user == models.User{}) {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) RequireAdmin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := getUserFromContext(r)
+		if user.Role != "admin" {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
 

@@ -21,7 +21,7 @@
     <header class="header">
       <div class="header__container container container_horizontal">
         <div class="container__elem container__logo logo">
-          <a href="/home" class="logo__link">
+          <a href="/" class="logo__link">
             <img src="./static/img/logo.png" alt="" />
             <p class="container__logo__text logo__text">Kharlal<br />cinema</p>
           </a>
@@ -32,7 +32,7 @@
             <li class="list_item"><a href="/all-seances">All seances</a></li>
           </ul>
         </div>
-
+        {{if eq .User.Username ""}}
         <div class="container__elem header__container__login_register">
           <ul class="list_horizontal list">
             <li class="list_item">
@@ -41,7 +41,9 @@
             <li class="list_item"><a href="/register">Register</a></li>
           </ul>
         </div>
-
+        {{end}}
+        {{if eq .User.Username ""}}
+        {{else}}
         <div class="container__elem header__container__user">
           <div class="header__container__user__icon_block">
             <i class="fa-solid fa-user header__container__user__icon"></i>
@@ -59,7 +61,7 @@
                 </a>
               </li>
               <li class="list_item">
-                <a href="/my-tickets">
+                <a href="/logout">
                   <i
                     class="fa-solid fa-right-from-bracket header__container__user__icon"
                   ></i>
@@ -69,6 +71,7 @@
             </ul>
           </div>
         </div>
+        {{end}}
       </div>
     </header>
 

@@ -11,11 +11,11 @@
 <div class="main__container container container__vertical">
     <div class="container__elem container_horizontal about_film">
         <div class="film_poster">
-            <img src="/images/{{ .ImageUrl }}" alt="" />
+            <img src="/images/{{ .Movie.ImageUrl }}" alt="" />
         </div>
         <div class="film_info container__vertical">
             <div class="film_title_block">
-                <h2 class="film_title">{{ .Title }}</h2>
+                <h2 class="film_title">{{ .Movie.Title }}</h2>
                 <p class="film_genre">cool genre</p>
             </div>
             <div class="divider"></div>
@@ -27,9 +27,24 @@
                 <span class="bold">Director: </span><span>Christopher Nolan</span>
             </p>
             <p class="film_description">
-                {{ .Description }}
+                {{ .Movie.Description }}
             </p>
+            <h2>Seances</h2>
+            {{range .Seances}}
+
+            <div>
+                <p>{{.Location}}</p>
+                {{if eq .User.Username ""}}
+                {{else}}
+                <form action="/getTicket" method="post">
+                    <input type="hidden" name="seanceID" value="{{.ID}}">
+                    <input type="submit" value="Book a ticket">
+                </form>
+                {{end}}
+            </div>
+            {{end}}
         </div>
     </div>
+
 </div>
 {{ end }}
