@@ -6,12 +6,10 @@
 }
 main {
   width: 100%;
-  height: 100%;
   padding: 20px 5%;
 }
 .container {
   width: 100%;
-  height: 100%;
 }
 .container_horizontal {
   display: flex;
@@ -19,7 +17,12 @@ main {
   align-items: center;
   justify-content: space-between;
 }
-
+.container__vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
 .logo {
   height: 100px;
   transition: 0.2s;

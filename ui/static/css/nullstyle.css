@@ -83,3 +83,10 @@ h6 {
 i {
   transition: 0.2s;
 }
+h1 {
+  font-size: 30px;
+  font-weight: bold;
+}
+.bold {
+  font-weight: bold;
+}
