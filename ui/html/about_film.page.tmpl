@@ -1,0 +1,38 @@
+{{ template "base" . }}
+
+{{ define "styles" . }}
+    <link rel="stylesheet" href="./static/css/about_film.css" />
+{{ end }}
+
+{{ define "scripts" }}
+{{ end }}
+
+{{ define "main" . }}
+
+<div class="main__container contaainer container__vertical">
+    <div class="container__elem container_horizontal about_film">
+        <div class="film_poster">
+            <img src="{{ .ImageUrl }}" alt="" />
+        </div>
+        <div class="film_info container__vertical">
+            <div class="film_title_block">
+                <h2 class="film_title">{{ .Title }}</h2>
+                <p class="film_genre">cool genre</p>
+            </div>
+            <div class="divider"></div>
+            <p class="main_film_info">
+                <span>169 min. / 02:49</span> | <span>October 26, 2014</span> |
+                <span>18+</span>
+            </p>
+            <p class="film_description">
+                <span class="bold">Director: </span><span>Christopher Nolan</span>
+            </p>
+            <p class="film_description">
+                {{ .Description }}
+            </p>
+        </div>
+    </div>
+</div>
+{{ end }}
+
+{{ end }}

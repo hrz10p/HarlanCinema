@@ -1,0 +1,35 @@
+{{ template "base" . }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="./static/css/my_tickets.css" />
+{{ end }}
+
+{{ define "scripts" }}
+{{ end }}
+
+{{ define "main" . }}
+<div class="main__container container container__vertical">
+    <div class="container__elem container__vertical my_tickets_block">
+        <h1 class="h1">My tickets</h1>
+        <ul class="list_vertical my_tickets_list">
+            {{ range . }}
+                <li class="list_item ticket">
+                <div class="container_horizontal container ticket_content">
+                    <div class="ticket_img">
+                        <img src="{{ .ImageUrl }}" alt="" />
+                    </div>
+                    <div class="ticket_info">
+                        <p>{{ .Title }}</p>
+                        <div class="divider"></div>
+                        <p>Date: <span>{{ .Date }}</span></p>
+                        <p>Time: <span>{{ .Time }}</span></p>
+                        <p>Cinema: <span>{{ .Cinema }}</span></p>
+                        <p>Ticket type: <span>{{ .TicketType }}</span></p>
+                    </div>
+                </div>
+                </li>
+            {{ end }}
+        </ul>
+    </div>
+</div>
+{{ end }}

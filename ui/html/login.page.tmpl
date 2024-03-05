@@ -1,0 +1,32 @@
+{{ template "base" . }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="./static/css/login.css" />
+{{ end }}
+
+{{ define "scripts" }}
+{{ end }}
+
+{{ define "main" . }}
+<div class="main__container container container__vertical">
+    <div class="container__elem container__vertical login_block">
+        <h1 class="h1">Login</h1>
+        <form action="" class="container__vertical login_form">
+            <label for="" class="label">
+                Email:
+                <input type="text" placeholder="email" name="email" id="email" />
+            </label>
+            <label for="" class="label">
+                Password:
+                <input
+                    type="password"
+                    placeholder="password"
+                    name="password"
+                    id="password"
+                />
+            </label>
+            <button class="login_btn">Login</button>
+        </form>
+    </div>
+</div>
+{{ end }}
