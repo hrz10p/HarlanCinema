@@ -1,10 +1,8 @@
-package repositories
+package repo
 
 import (
 	"HarlanCinema/pkg/models"
 
-	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -24,31 +22,10 @@ func (s *UserRepository) GetAllUsers() ([]models.User, error) {
 	return users, nil
 }
 
-func (s *UserRepository) RegisterUser(user models.User) (models.User, error) {
-	user.ID = uuid.New().String()
-	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
+func (s *UserRepository) Create(user models.User) (models.User, error) {
+	if err := s.db.Create(&user).Error; err != nil {
 		return models.User{}, err
 	}
-
-	user.Password = string(hash)
-
-	if result := s.db.Create(&user); result.Error != nil {
-		return models.User{}, result.Error
-	}
-	return user, nil
-}
-
-func (s *UserRepository) AuthenticateUser(login, pass string) (models.User, error) {
-	var user models.User
-	if result := s.db.Where("username = ?", login).Or("email = ?", login).First(&user); result.Error != nil {
-		return models.User{}, models.ErrInvalidCredentials
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(pass)); err != nil {
-		return models.User{}, models.ErrInvalidCredentials
-	}
-
 	return user, nil
 }
 
@@ -60,7 +37,7 @@ func (s *UserRepository) GetUserByID(id string) (models.User, error) {
 	return user, nil
 }
 
-func (s *UserRepository) getUserByUsername(username string) (models.User, error) {
+func (s *UserRepository) GetUserByUsername(username string) (models.User, error) {
 	var user models.User
 	if result := s.db.Where("username = ?", username).First(&user); result.Error != nil {
 		return models.User{}, result.Error
