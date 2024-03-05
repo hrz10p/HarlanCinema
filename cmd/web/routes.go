@@ -27,5 +27,7 @@ func (app *application) routes() *mux.Router {
 	fs := http.FileServer(http.Dir("./ui/static"))
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
 
+	r.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./uploads"))))
+
 	return r
 }
