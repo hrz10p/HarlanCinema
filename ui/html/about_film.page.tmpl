@@ -1,15 +1,14 @@
 {{ template "base" . }}
 
-{{ define "styles" . }}
-    <link rel="stylesheet" href="./static/css/about_film.css" />
+{{ define "styles" }}
+    <link rel="stylesheet" href="./static/css/about_film.css">
 {{ end }}
 
 {{ define "scripts" }}
 {{ end }}
 
-{{ define "main" . }}
-
-<div class="main__container contaainer container__vertical">
+{{ define "main" }}
+<div class="main__container container container__vertical">
     <div class="container__elem container_horizontal about_film">
         <div class="film_poster">
             <img src="{{ .ImageUrl }}" alt="" />
@@ -33,6 +32,4 @@
         </div>
     </div>
 </div>
-{{ end }}
-
 {{ end }}
