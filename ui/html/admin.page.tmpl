@@ -1,0 +1,40 @@
+{{ template "base" . }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="./static/css/login_register.css">
+{{ end }}
+
+{{ define "scripts" }}
+{{ end }}
+
+{{ define "main" }}
+<div class="forms-container">
+    <div class="form">
+        <h1>Movie create</h1>
+        <form action="/admin/movie" method="post" enctype="multipart/form-data">
+            <label for="title">Movie title</label>
+            <input type="text" id="title" name="title">
+            <label for="description">Movie description</label>
+            <textarea id="description" name="description" id="" cols="30" rows="10"></textarea>
+            <label for="rating">Rating</label>
+            <input type="number" name="rating" id="rating">
+            <label for="image">Image (JPEG, PNG, GIF):</label>
+            <input type="file" id="image" name="image" accept="image/jpeg, image/png, image/gif">
+        </form>
+    </div>
+    <div class="form">
+        <h1>Seance create</h1>
+        <form action="/admin/seance" method="post">
+            <label for="location">Seance location</label>
+            <input type="text" id="location" name="location">
+            <label for="date">Seance date</label>
+            <input type="date" name="date" id="date">
+            <select name="movie" id="movie">
+                {{range .Movies}}
+                <option value="{{.ID}}">{{.Name}}</option>
+                {{end}}
+            </select>
+        </form>
+    </div>
+</div>
+{{end}}
