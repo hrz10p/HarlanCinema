@@ -16,7 +16,7 @@
                 {{ range .Movies }}
                     <div class="premier card">
                         <div class="card__img">
-                            <img src="/images/{{ .ImageUrl }}" alt="" />
+                            <img src="{{ .ImageUrl }}" alt="" />
                         </div>
                         <div class="card__info">
                             <p class="card__info__title">{{ .Title }}</p>

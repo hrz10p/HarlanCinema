@@ -23,7 +23,7 @@
             {{ range .Seances}}
                 <div class="card">
                     <div class="card__img">
-                        <img src="/images/{{ .Movie.ImageUrl }}" alt="" />
+                        <img src="{{ .Movie.ImageUrl }}" alt="" />
                     </div>
                     <div class="card__info">
                         <p class="card__info__title">{{ .Movie.Title }}</p>

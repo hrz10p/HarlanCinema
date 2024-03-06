@@ -25,6 +25,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	var page Page
 
 	movies, err := app.services.MovieService.GetAllMovies()
+	fmt.Println(movies)
 	if err != nil {
 		app.errorLog.Println("Something wrong", err)
 		http.Error(w, "Internal Server error", 500)

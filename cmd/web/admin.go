@@ -2,6 +2,7 @@ package main
 
 import (
 	"HarlanCinema/pkg/models"
+	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -53,6 +54,7 @@ func (app *application) createMovie(w http.ResponseWriter, r *http.Request) {
 	title := r.FormValue("title")
 	desc := r.FormValue("description")
 	rating := r.FormValue("rating")
+	imageUrl := r.FormValue("image_url")
 
 	raing, err := strconv.Atoi(rating)
 	if err != nil {
@@ -71,9 +73,9 @@ func (app *application) createMovie(w http.ResponseWriter, r *http.Request) {
 		Title:       title,
 		Description: desc,
 		Rating:      float64(raing),
-		ImageUrl:    fileURL,
+		ImageUrl:    imageUrl,
 	}
-
+	fmt.Println(fileURL)
 	movie, err = app.services.MovieService.CreateMovie(movie)
 	if err != nil {
 		app.errorLog.Println("Something wrong", err)

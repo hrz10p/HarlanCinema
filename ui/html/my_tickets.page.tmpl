@@ -15,7 +15,7 @@
         <ul class="list_vertical my_tickets_list">
             {{ range .Tickets }}
             <div class="ticket_img">
-                <img src="/images/{{ .Seance.Movie.ImageUrl }}" alt="" />
+                <img src="{{ .Seance.Movie.ImageUrl }}" alt="" />
             </div>
                 <li class="list_item ticket">
                 <div class="container_horizontal container ticket_content">
