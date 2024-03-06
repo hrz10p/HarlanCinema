@@ -150,9 +150,12 @@ func (app *application) register(w http.ResponseWriter, r *http.Request) {
 
 	username := r.Form.Get("username")
 	password := r.Form.Get("password")
+	email := r.Form.Get("email")
+	fmt.Println(email)
 	user := models.User{
 		Username: username,
 		Password: password,
+		Email:    email,
 	}
 	user, err = app.services.UserService.RegisterUser(user)
 	if err != nil {
